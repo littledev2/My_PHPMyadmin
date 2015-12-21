@@ -1,83 +1,131 @@
 <?php
 
+	//TO DO : récupérer données envoyées par client
+	$host = "localhost"; //adresse du serveur
+	$login = "root"; //Nom utilisateur
+	$pswd = ""; //Mot de passe
+	$nameDB = ""; //Nom base
+
 	//création bdd
-	try
+	function creationDB()
 	{
-		$sql_crea = 'CREATE DATABASE '.$nameDB.' CHARACTER SET \'utf8\'';
-		PDO::query($sql_crea);
+		try
+		{
+			global $nameDB;
+
+			$sql_crea = 'CREATE DATABASE '.$nameDB.' CHARACTER SET \'utf8\';';
+			exec($sql_crea);
+		}
+		catch (Exception $e)
+		{
+			die('Erreur de création de base de donnée : ' . $e->getMessage());
+		}
 	}
-	catch (Exception $e)
+
+	//connexion bdd
+	function connexionDB()
 	{
-		die('Erreur de création de base de donnée : ' . $e->getMessage());
+		try
+		{
+			global $host, $login, $password, $nameDB;
+
+			$db = mysql_connect($host, $login, $password);
+			mysql_select_db($base,$db);
+		}
+		catch (Exception $e)
+		{
+			die('Erreur de connexion de base de donnée : ' . $e->getMessage());
+		}
 	}
-	
+
 	//suppression bdd
-	//TO DO : connection bdd avec entrée nom_user + mp
-	try
+	function suppressionDB()
 	{
-		$sql_drop = 'DROP DATABASE '.$nameDB;
-		PDO::query($sql_drop);
-		echo('La Base a bien été supprimée');
+		connexionDB();
+		try
+		{
+			global $nameDB;
+
+			$sql_drop = 'DROP DATABASE '.$nameDB.';';
+			exec($sql_drop);
+			echo('La Base '.$nameDB.' a bien été supprimée');
+		}
+		catch (Exception $e)
+		{
+			die('Erreur de suppression de base de donnée : ' . $e->getMessage());
+		}
 	}
-	catch (Exception $e)
-	{
-		die('Erreur de suppression de base de donnée : ' . $e->getMessage());
-	}
-	
-	//statistiques bdd
-	//TO DO : connection bdd avec entrée nom_user + mp
-	//Nombres de tables
-	try
-	{
-		$sql_drop = 'SELECT Count(*) FROM '.$nameDB.'.Tables';
-		$nbr_tables = PDO::query($sql_drop);
-		//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
-		echo($nbr_tables);
-	}
-	catch (Exception $e)
-	{
-		die('Erreur dans le nombre de tables : ' . $e->getMessage());
-	}
-	//Date de création
-	try
-	{
-		$sql_drop = '';
-		$date_crea = PDO::query($sql_drop);
-		//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
-		echo($date_crea);
-	}
-	catch (Exception $e)
-	{
-		die('Erreur date de création : ' . $e->getMessage());
-	}
-	//Espace mémoire
-	try
-	{
-		$sql_drop = '';
-		$esp_mem = PDO::query($sql_drop);
-		//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
-		echo($esp_mem);
-	}
-	catch (Exception $e)
-	{
-		die('Erreur d\'espace mémoire : ' . $e->getMessage());
-	}
-	//Affichage résultats
-	echo("Statistiques : \n
-		Nombre de tables : ".$nbr_tables."\n
-		Date de création : ".$date_crea."\n
-		Espace Mémoire restante : ".$esp_mem."\n");
-	
+
 	//changement du nom via mysqldump
-	//TO DO : connection bdd avec entrée nom_user + mp
-	try
+	function changNameDB($newname)
 	{
-		exec('mysqldump --user='.$nm_user.' --password='.$pswd.' --host='.$host.' '.$nameDB.' > temp.sql');
-		exec('CREATE DATABASE '.$nameDB.' CHARACTER SET \'utf8\'');
-		exec('DROP DATABASE '.$nameDB);
+		try
+		{
+			global $host, $login, $pswd, $nameDB;
+
+			exec('mysqldump --user='.$login.' --password='.$pswd.' --host='.$host.' '.$nameDB.' > temp.sql;');
+			exec('CREATE DATABASE '.$newname.' CHARACTER SET \'utf8\';');
+			exec('mysqldump --user='.$login.' --password='.$pswd.' --host='.$host.' '.$nameDB.' < temp.sql;');
+			exec('DROP DATABASE '.$nameDB.';');
+		}
+		catch (Exception $e)
+		{
+			die('Erreur de création de base de donnée : ' . $e->getMessage());
+		}
 	}
-	catch (Exception $e)
+
+	//statistiques bdd
+	function statDB()
 	{
-		die('Erreur de création de base de donnée : ' . $e->getMessage());
+		global $nameDB;
+
+		connexionDB();
+		//Nombres de tables
+		try
+		{
+			$sql_drop = 'SELECT Count(*) FROM '.$nameDB.'.Tables;';
+			$nbr_tables = system($sql_drop);
+			//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
+			echo($nbr_tables);
+		}
+		catch (Exception $e)
+		{
+			die('Erreur dans le nombre de tables : ' . $e->getMessage());
+		}
+		//Date de création
+		try
+		{
+			$sql_drop = '';
+			$date_crea = system($sql_drop);
+			//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
+			echo($date_crea);
+		}
+		catch (Exception $e)
+		{
+			die('Erreur date de création : ' . $e->getMessage());
+		}
+		//Espace mémoire
+		try
+		{
+			$sql_drop = '';
+			$esp_mem = system($sql_drop);
+			//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
+			echo($esp_mem);
+		}
+		catch (Exception $e)
+		{
+			die('Erreur d\'espace mémoire : ' . $e->getMessage());
+		}
+			//Affichage résultats
+		echo("Statistiques : \n
+			Nombre de tables : ".$nbr_tables."\n
+			Date de création : ".$date_crea."\n
+			Espace Mémoire restante : ".$esp_mem."\n");
 	}
+
+	//execution
+	creationDB();
+	suppressionDB();
+	statDB();
+	changNameDB();
 ?>
