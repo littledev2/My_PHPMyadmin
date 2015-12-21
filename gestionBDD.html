@@ -1,0 +1,83 @@
+<?php
+
+	//création bdd
+	try
+	{
+		$sql_crea = 'CREATE DATABASE '.$nameDB.' CHARACTER SET \'utf8\'';
+		PDO::query($sql_crea);
+	}
+	catch (Exception $e)
+	{
+		die('Erreur de création de base de donnée : ' . $e->getMessage());
+	}
+	
+	//suppression bdd
+	//TO DO : connection bdd avec entrée nom_user + mp
+	try
+	{
+		$sql_drop = 'DROP DATABASE '.$nameDB;
+		PDO::query($sql_drop);
+		echo('La Base a bien été supprimée');
+	}
+	catch (Exception $e)
+	{
+		die('Erreur de suppression de base de donnée : ' . $e->getMessage());
+	}
+	
+	//statistiques bdd
+	//TO DO : connection bdd avec entrée nom_user + mp
+	//Nombres de tables
+	try
+	{
+		$sql_drop = 'SELECT Count(*) FROM '.$nameDB.'.Tables';
+		$nbr_tables = PDO::query($sql_drop);
+		//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
+		echo($nbr_tables);
+	}
+	catch (Exception $e)
+	{
+		die('Erreur dans le nombre de tables : ' . $e->getMessage());
+	}
+	//Date de création
+	try
+	{
+		$sql_drop = '';
+		$date_crea = PDO::query($sql_drop);
+		//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
+		echo($date_crea);
+	}
+	catch (Exception $e)
+	{
+		die('Erreur date de création : ' . $e->getMessage());
+	}
+	//Espace mémoire
+	try
+	{
+		$sql_drop = '';
+		$esp_mem = PDO::query($sql_drop);
+		//Pas sur de la syntaxe; on va d'abord utiliser cette ligne pour tester
+		echo($esp_mem);
+	}
+	catch (Exception $e)
+	{
+		die('Erreur d\'espace mémoire : ' . $e->getMessage());
+	}
+	//Affichage résultats
+	echo("Statistiques : \n
+		Nombre de tables : ".$nbr_tables."\n
+		Date de création : ".$date_crea."\n
+		Espace Mémoire restante : ".$esp_mem."\n");
+	
+	//changement du nom via mysqldump
+	//TO DO : connection bdd avec entrée nom_user + mp
+	try
+	{
+		exec('mysqldump --user='.$nm_user.' --password='.$pswd.' --host='.$host.' '.$nameDB.' > temp.sql');
+		exec('CREATE DATABASE '.$nameDB.' CHARACTER SET \'utf8\'');
+		exec('DROP DATABASE '.$nameDB);
+	}
+	catch (Exception $e)
+	{
+		die('Erreur de création de base de donnée : ' . $e->getMessage());
+	}
+?>
