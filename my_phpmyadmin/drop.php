@@ -15,6 +15,7 @@
 	try
 	{
 		$reponse = $bdd->query('drop database '.$nameDB);
+		echo('La base de données a bien été supprimée');
 	}
 	catch (PDOException $e)
 	{
